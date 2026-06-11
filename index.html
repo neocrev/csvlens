@@ -80,6 +80,7 @@ tr:hover td{background:#1a1b2e}
     <span id="colCount"></span>
     <span id="filteredCount"></span>
   </div>
+  <span id="statusMsg" style="font-size:12px;color:#565f89"></span>
 </div>
 
 <div id="app">
@@ -101,6 +102,7 @@ tr:hover td{background:#1a1b2e}
       <select id="sortDir"><option value="asc">Asc</option><option value="desc">Desc</option></select>
       <span style="color:#565f89;font-size:13px;margin-left:8px">Chart:</span>
       <select id="chartCol" onchange="updateChart()"><option value="">None</option></select>
+      <button class="btn btn-sm" id="shareBtn" onclick="copyShareUrl()" title="Copy share URL with data encoded" style="display:none">Share</button>
     </div>
 
     <div class="table-wrap" id="tableWrap">
@@ -437,7 +439,48 @@ function exportCSV() {
   URL.revokeObjectURL(url);
 }
 
-function init() { showImport(); }
+function getShareUrl() {
+  const text = document.getElementById('csvInput').value;
+  if (!text.trim()) return '';
+  const encoded = btoa(unescape(encodeURIComponent(text)));
+  return location.origin + location.pathname + '#' + encoded;
+}
+
+function copyShareUrl() {
+  const url = getShareUrl();
+  if (!url) { setStatus('No data to share'); return; }
+  navigator.clipboard.writeText(url).then(() => {
+    setStatus('Share URL copied to clipboard');
+  }).catch(() => {
+    setStatus('Failed to copy URL');
+  });
+}
+
+function loadFromHash() {
+  const hash = location.hash.slice(1);
+  if (!hash) return;
+  try {
+    const text = decodeURIComponent(escape(atob(hash)));
+    document.getElementById('csvInput').value = text;
+    loadCSV();
+  } catch(e) {
+    // Invalid hash, ignore
+  }
+}
+
+function setStatus(msg) {
+  const el = document.getElementById('statusMsg');
+  if (el) el.textContent = msg;
+  if (msg) setTimeout(() => { if (el && el.textContent === msg) el.textContent = ''; }, 3000);
+}
+
+function init() {
+  loadFromHash();
+  showImport();
+  // Update share button visibility
+  const shareBtn = document.getElementById('shareBtn');
+  if (shareBtn) shareBtn.style.display = 'inline-block';
+}
 init();
 </script>
 </body>
