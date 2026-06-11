@@ -18,6 +18,7 @@ header h1 span{color:#565f89;font-weight:400}
 .btn-primary{background:#7aa2f7;color:#0f0f1a}
 .btn-primary:hover{background:#89b4fa}
 .btn-danger{background:#f7768e;color:#0f0f1a}
+.btn-sm{padding:4px 10px;font-size:12px}
 .btn-danger:hover{background:#f99;color:#0f0f1a}
 .import-section{background:#1a1b2e;border-radius:10px;margin:16px 24px;padding:20px;border:1px solid #24253a}
 .import-section textarea{width:100%;min-height:80px;background:#0f0f1a;border:1px solid #24253a;border-radius:6px;color:#c0caf5;padding:10px;font-family:monospace;font-size:13px;resize:vertical;margin-bottom:10px}
@@ -94,6 +95,8 @@ tr:hover td{background:#1a1b2e}
   <div id="content" style="display:none">
     <div class="toolbar">
       <input type="text" id="globalSearch" placeholder="Search all columns..." oninput="applyFilters()">
+      <span style="color:#565f89;font-size:13px">Rows:</span>
+      <button class="btn btn-sm" id="rowNumToggle" onclick="toggleRowNumbers()" title="Toggle row numbers">#</button>
       <select id="sortCol" onchange="applyFilters()"><option value="">No sort</option></select>
       <select id="sortDir"><option value="asc">Asc</option><option value="desc">Desc</option></select>
       <span style="color:#565f89;font-size:13px;margin-left:8px">Chart:</span>
@@ -141,6 +144,7 @@ let headers = [];
 let filtered = [];
 let chart = null;
 let statsColumn = null;
+let showRowNums = false;
 
 function el(tag, cls, html) {
   const e = document.createElement(tag);
@@ -180,6 +184,11 @@ Tina Turner,48,Nashville,93000,Management`;
 }
 
 function parseCSV(text) {
+  // Auto-detect delimiter: tabs or commas
+  const firstLine = text.split('\n')[0] || '';
+  const tabCount = (firstLine.match(/\t/g) || []).length;
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const delim = tabCount > commaCount ? '\t' : ',';
   const lines = [];
   let current = '', inQuotes = false;
   for (let i = 0; i < text.length; i++) {
@@ -195,7 +204,7 @@ function parseCSV(text) {
     for (let i = 0; i < l.length; i++) {
       const c = l[i];
       if (c === '"') { q = !q; continue; }
-      if (c === ',' && !q) { row.push(field.trim()); field = ''; continue; }
+      if (c === delim && !q) { row.push(field.trim()); field = ''; continue; }
       field += c;
     }
     row.push(field.trim());
@@ -288,6 +297,13 @@ function renderTable() {
   tbody.innerHTML = '';
 
   const tr = document.createElement('tr');
+  if (showRowNums) {
+    const th = document.createElement('th');
+    th.style.width = '50px';
+    th.style.textAlign = 'center';
+    th.textContent = '#';
+    tr.appendChild(th);
+  }
   headers.forEach(h => {
     const th = document.createElement('th');
     th.innerHTML = `${h} <span class="sort-icon">&#9650;</span><div class="col-filter"><input type="text" placeholder="Filter..." data-col="${h.replace(/"/g,'&quot;')}" oninput="applyFilters()"></div>`;
@@ -304,8 +320,16 @@ function renderTable() {
   });
   thead.appendChild(tr);
 
-  filtered.forEach(row => {
+  filtered.forEach((row, idx) => {
     const tr2 = document.createElement('tr');
+    if (showRowNums) {
+      const td = document.createElement('td');
+      td.style.cssText = 'text-align:center;color:#565f89;font-size:11px;font-weight:600';
+      // Map back to original row index
+      const origIdx = data.indexOf(row);
+      td.textContent = origIdx >= 0 ? origIdx + 1 : '-';
+      tr2.appendChild(td);
+    }
     headers.forEach(h => {
       const td = document.createElement('td');
       const val = row[h] || '';
@@ -388,6 +412,12 @@ function updateChart() {
       }
     }
   });
+}
+
+function toggleRowNumbers() {
+  showRowNums = !showRowNums;
+  document.getElementById('rowNumToggle').style.background = showRowNums ? '#32345a' : '';
+  renderTable();
 }
 
 function exportCSV() {
