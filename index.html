@@ -180,6 +180,11 @@ Tina Turner,48,Nashville,93000,Management`;
 }
 
 function parseCSV(text) {
+  // Auto-detect delimiter: tabs or commas
+  const firstLine = text.split('\n')[0] || '';
+  const tabCount = (firstLine.match(/\t/g) || []).length;
+  const commaCount = (firstLine.match(/,/g) || []).length;
+  const delim = tabCount > commaCount ? '\t' : ',';
   const lines = [];
   let current = '', inQuotes = false;
   for (let i = 0; i < text.length; i++) {
@@ -195,7 +200,7 @@ function parseCSV(text) {
     for (let i = 0; i < l.length; i++) {
       const c = l[i];
       if (c === '"') { q = !q; continue; }
-      if (c === ',' && !q) { row.push(field.trim()); field = ''; continue; }
+      if (c === delim && !q) { row.push(field.trim()); field = ''; continue; }
       field += c;
     }
     row.push(field.trim());
