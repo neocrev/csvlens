@@ -110,6 +110,7 @@ tr:hover td{background:#1a1b2e}
       <span style="flex:1"></span>
       <button class="btn btn-sm" onclick="exportCSV()">Export CSV</button>
       <button class="btn btn-sm" onclick="exportJSON()">Export JSON</button>
+      <button class="btn btn-sm" onclick="copyMarkdown()">Copy MD Table</button>
     </div>
 
     <div class="table-wrap" id="tableWrap">
@@ -535,6 +536,15 @@ function exportJSON() {
   a.href = url; a.download = 'export.json'; a.click();
   URL.revokeObjectURL(url);
   setStatus(`Exported ${filtered.length} rows as JSON`);
+}
+
+function copyMarkdown() {
+  if (!filtered.length) { setStatus('No data to export'); return; }
+  const hdr = '| ' + headers.join(' | ') + ' |';
+  const sep = '| ' + headers.map(() => '---').join(' | ') + ' |';
+  const rows = filtered.map(row => '| ' + headers.map(h => String(row[h]||'').replace(/\|/g,'\\|').replace(/\n/g,' ')).join(' | ') + ' |');
+  const md = [hdr, sep, ...rows].join('\n');
+  navigator.clipboard.writeText(md).then(() => setStatus('Copied Markdown table')).catch(() => setStatus('Copy failed'));
 }
 
 function loadFromHash() {
