@@ -21,6 +21,8 @@ header h1 span{color:#565f89;font-weight:400}
 .btn-danger{background:#f7768e;color:#0f0f1a}
 .btn-sm{padding:4px 10px;font-size:12px}
 .btn-danger:hover{background:#f99;color:#0f0f1a}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:100;display:flex;align-items:center;justify-content:center}
+.modal{background:#1a1b2e;border:1px solid #24253a;border-radius:10px;padding:20px;max-width:90vw;max-height:80vh;overflow-y:auto}
 .import-section{background:#1a1b2e;border-radius:10px;margin:16px 24px;padding:20px;border:1px solid #24253a}
 .import-section textarea{width:100%;min-height:80px;background:#0f0f1a;border:1px solid #24253a;border-radius:6px;color:#c0caf5;padding:10px;font-family:monospace;font-size:13px;resize:vertical;margin-bottom:10px}
 .import-section textarea:focus{outline:none;border-color:#7aa2f7}
@@ -350,8 +352,29 @@ function renderTable() {
       });
       tr2.appendChild(td);
     });
+    tr2.style.cursor = 'default';
+    tr2.title = 'Double-click to see row details';
+    tr2.addEventListener('dblclick', () => showRowDetail(row));
     tbody.appendChild(tr2);
   });
+}
+
+function showRowDetail(row) {
+  const overlay = document.createElement('div');
+  overlay.className = 'modal-overlay';
+  overlay.onclick = function(e) { if (e.target === overlay) overlay.remove(); };
+  let html = '<div class="modal" style="max-width:600px"><h2 style="margin-bottom:12px;font-size:15px">Row Details</h2><table style="width:100%;border-collapse:collapse;font-size:13px">';
+  headers.forEach(h => {
+    const val = row[h] || '';
+    html += `<tr><td style="padding:6px 10px;font-weight:600;color:#565f89;border-bottom:1px solid #1a1b2e;white-space:nowrap;vertical-align:top">${esc(h)}</td><td style="padding:6px 10px;color:#c0caf5;border-bottom:1px solid #1a1b2e;word-break:break-all">${esc(val)}</td></tr>`;
+  });
+  html += '</table><div style="margin-top:12px;text-align:right"><button class="btn" onclick="this.closest(\'.modal-overlay\').remove()">Close</button></div></div>';
+  overlay.innerHTML = html;
+  document.body.appendChild(overlay);
+}
+
+function esc(s) {
+  return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
 }
 
 function updateStats() {
