@@ -88,7 +88,7 @@ tr:hover td{background:#1a1b2e}
 
 <div id="app">
   <div class="import-section" id="importSection">
-    <textarea id="csvInput" placeholder="Paste CSV data here..."></textarea>
+    <textarea id="csvInput" placeholder="Paste CSV data here..." onpaste="setTimeout(loadCSV,100)"></textarea>
     <div class="import-row">
       <label>Choose file<input type="file" accept=".csv,.tsv,.txt" id="fileInput"></label>
       <button class="btn btn-primary" onclick="loadCSV()">Load</button>
