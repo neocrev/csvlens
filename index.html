@@ -109,6 +109,7 @@ tr:hover td{background:#1a1b2e}
       <button class="btn btn-sm" id="shareBtn" onclick="copyShareUrl()" title="Copy share URL with data encoded" style="display:none">Share</button>
       <span style="flex:1"></span>
       <button class="btn btn-sm" onclick="exportCSV()">Export CSV</button>
+      <button class="btn btn-sm" onclick="copyCSV()">Copy CSV</button>
       <button class="btn btn-sm" onclick="exportJSON()">Export JSON</button>
       <button class="btn btn-sm" onclick="copyMarkdown()">Copy MD Table</button>
     </div>
@@ -521,6 +522,18 @@ function exportCSV() {
   a.href = url; a.download = 'export.csv'; a.click();
   URL.revokeObjectURL(url);
   setStatus(`Exported ${filtered.length} rows as CSV`);
+}
+
+function copyCSV() {
+  if (!filtered.length) { setStatus('No data to copy'); return; }
+  const rows = [headers.join(',')];
+  filtered.forEach(row => {
+    rows.push(headers.map(h => {
+      const v = (row[h] || '').toString();
+      return v.includes(',') || v.includes('"') ? '"' + v.replace(/"/g, '""') + '"' : v;
+    }).join(','));
+  });
+  navigator.clipboard.writeText(rows.join('\n')).then(() => setStatus(`Copied ${filtered.length} rows as CSV`)).catch(() => setStatus('Copy failed'));
 }
 
 function exportJSON() {
