@@ -340,6 +340,13 @@ function renderTable() {
       const val = row[h] || '';
       td.textContent = val;
       if (tryNum(val) !== null) td.className = 'numeric';
+      td.style.cursor = 'pointer';
+      td.title = 'Click to copy';
+      td.addEventListener('click', () => {
+        navigator.clipboard.writeText(val).catch(() => {});
+        td.style.background = 'rgba(126,203,139,0.15)';
+        setTimeout(() => td.style.background = '', 400);
+      });
       tr2.appendChild(td);
     });
     tbody.appendChild(tr2);
