@@ -540,6 +540,22 @@ function init() {
   showImport();
   const shareBtn = document.getElementById('shareBtn');
   if (shareBtn) shareBtn.style.display = 'inline-block';
+
+  /* Keyboard shortcuts */
+  document.addEventListener('keydown', e => {
+    if (e.target.tagName === 'INPUT' || e.target.tagName === 'TEXTAREA' || e.target.tagName === 'SELECT') {
+      if (e.key === 'Escape') e.target.blur();
+      return;
+    }
+    if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
+      e.preventDefault();
+      const search = document.getElementById('globalSearch');
+      if (search) search.focus();
+    }
+    if (e.key === 'Escape') {
+      document.activeElement?.blur();
+    }
+  });
 }
 init();
 </script>
