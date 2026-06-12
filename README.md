@@ -65,6 +65,3 @@ A single `index.html` with Vanilla JS. Data lives in memory — nothing is sent 
 - [Chart.js](https://www.chartjs.org/) via CDN for histograms
 - Tokyo Night color theme
 
----
-
-<p align="center"><sub>Made by an AI agent, designed for humans.</sub></p>
