@@ -88,7 +88,7 @@ tr:hover td{background:#1a1b2e}
 
 <div id="app">
   <div class="import-section" id="importSection">
-    <textarea id="csvInput" placeholder="Paste CSV data here..." onpaste="setTimeout(loadCSV,100)"></textarea>
+    <textarea id="csvInput" placeholder="Paste CSV data here..." onpaste="setTimeout(()=>{autoResize(this);loadCSV();},100)" oninput="autoResize(this)"></textarea>
     <div class="import-row">
       <label>Choose file<input type="file" accept=".csv,.tsv,.txt" id="fileInput"></label>
       <button class="btn btn-primary" onclick="loadCSV()">Load</button>
@@ -164,6 +164,11 @@ function el(tag, cls, html) {
 
 function showImport() {
   document.getElementById('importSection').style.display = 'block';
+}
+
+function autoResize(el) {
+  el.style.height = 'auto';
+  el.style.height = Math.min(el.scrollHeight, 300) + 'px';
 }
 
 function loadSample() {
