@@ -324,8 +324,17 @@ function renderTable() {
       } else { sel.value = h; document.getElementById('sortDir').value = 'asc'; }
       applyFilters();
     });
+    th.dataset.col = h;
     tr.appendChild(th);
   });
+  // Highlight active sort column
+  const activeSort = document.getElementById('sortCol').value;
+  if (activeSort) {
+    const ths = tr.querySelectorAll('th');
+    for (const th of ths) {
+      if (th.dataset.col === activeSort) th.classList.add('sorted');
+    }
+  }
   thead.appendChild(tr);
 
   filtered.forEach((row, idx) => {
