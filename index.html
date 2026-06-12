@@ -468,6 +468,30 @@ function loadFromHash() {
   }
 }
 
+function loadFromUrlParam() {
+  const params = new URLSearchParams(location.search);
+  const url = params.get('url');
+  if (url) {
+    setStatus('Loading data from URL...');
+    fetch(url)
+      .then(r => { if (!r.ok) throw new Error('HTTP ' + r.status); return r.text(); })
+      .then(text => {
+        document.getElementById('csvInput').value = text;
+        loadCSV();
+        setStatus('Loaded from ' + url);
+      })
+      .catch(e => setStatus('Failed to load URL: ' + e.message));
+    return true;
+  }
+  const csvParam = params.get('csv');
+  if (csvParam) {
+    document.getElementById('csvInput').value = csvParam;
+    loadCSV();
+    return true;
+  }
+  return false;
+}
+
 function setStatus(msg) {
   const el = document.getElementById('statusMsg');
   if (el) el.textContent = msg;
@@ -475,9 +499,10 @@ function setStatus(msg) {
 }
 
 function init() {
-  loadFromHash();
+  if (!loadFromUrlParam()) {
+    loadFromHash();
+  }
   showImport();
-  // Update share button visibility
   const shareBtn = document.getElementById('shareBtn');
   if (shareBtn) shareBtn.style.display = 'inline-block';
 }
